@@ -19,7 +19,7 @@ const people = [
   { id: 17, name: "赤楚衛二", img: "赤楚衛二.png" },
   { id: 18, name: "鈴木伸之", img: "鈴木伸之.png" },
   { id: 19, name: "間宮祥太朗", img: "間宮祥太朗.png" },
-  { id: 20, name: "高杉真宙", img: "高杉真宙.png" }
+  { id: 20, name: "高杉真宙", img: "高杉真宙.png" },
    { id: 21, name: "柳楽優弥", img: "柳楽優弥.png" },
 ];
 
