@@ -225,15 +225,6 @@ function secondRound(index) {
 
   const group = survivors.slice(index, index + 4);
 
-  if (group.length < 2) {
-
-    finalists.push(...group);
-
-    startFinalRound(finalists);
-
-    return;
-  }
-
   let firstId = null;
   let secondId = null;
 
@@ -267,56 +258,45 @@ function secondRound(index) {
     </section>
   `;
 
-
   window.pick = function(id) {
 
     const el = document.querySelector("#p" + id);
 
     if (!el) return;
 
-
     if (firstId === null) {
 
       firstId = id;
-
       el.classList.add("selected");
 
     } else if (id === firstId) {
 
       firstId = null;
-
       el.classList.remove("selected");
 
     } else if (secondId === null) {
 
       secondId = id;
-
       el.classList.add("selected");
 
     } else if (id === secondId) {
 
       secondId = null;
-
       el.classList.remove("selected");
 
     } else {
 
-      const old =
-        document.querySelector("#p" + secondId);
+      const old = document.querySelector("#p" + secondId);
 
       if (old) {
         old.classList.remove("selected");
       }
 
       secondId = id;
-
       el.classList.add("selected");
     }
 
-
-    const button =
-      document.querySelector("#ok");
-
+    const button = document.querySelector("#ok");
 
     if (firstId !== null && secondId !== null) {
 
@@ -333,7 +313,7 @@ function secondRound(index) {
         finalists.push(first);
         finalists.push(second);
 
-        secondRound(index + 4);
+        secondRound(index + group.length);
       };
 
     } else {
@@ -350,7 +330,15 @@ function secondRound(index) {
    ===================================================== */
 
 /*
- * 這裡就是你說的：
+ * 這一輪不是單純淘汰。
+ *
+ * 會進行「比較排序」。
+ *
+ * 例如：
+ *
+ * A B C D E F G H I J
+ *
+ * 第一輪：
  *
  * A vs B → A
  * C vs D → D
@@ -360,100 +348,108 @@ function secondRound(index) {
  *
  * 接著：
  *
+ * 勝者組：
  * A vs D
  * F vs H
- * ...
+ * I 輪空
  *
- * 勝者繼續在上位組比。
+ * 敗者組：
+ * B vs C
+ * E vs G
+ * J 輪空
  *
- * 敗者也會進入自己的排名組。
- *
- * 最後只取 TOP 9。
+ * 最後把比較結果整理成完整排名。
  */
+
+
+/* =========================
+   開始最終排序
+   ========================= */
 
 function startFinalRound(pool) {
 
-  const shuffled = shuffle(pool);
+  const list = shuffle(pool);
 
-  rankingTournament(shuffled, []);
+  mergeSortRanking(list, function(sorted) {
+
+    result(sorted);
+  });
 }
 
 
 /* =========================
-   排名賽
+   Merge Sort 排名
    ========================= */
 
-function rankingTournament(pool, ranking) {
+function mergeSortRanking(list, callback) {
 
-  /*
-   * 已經排出9人
-   */
-  if (ranking.length >= 9) {
+  if (list.length <= 1) {
 
-    result(ranking.slice(0, 9));
-
+    callback(list);
     return;
   }
 
+  const middle = Math.floor(list.length / 2);
 
-  /*
-   * 剩下的人少於等於9人
-   */
-  if (pool.length <= 9 - ranking.length) {
+  const left = list.slice(0, middle);
+  const right = list.slice(middle);
 
-    ranking.push(...pool);
+  mergeSortRanking(left, function(sortedLeft) {
 
-    result(ranking.slice(0, 9));
+    mergeSortRanking(right, function(sortedRight) {
 
-    return;
-  }
+      mergeRanking(
+        sortedLeft,
+        sortedRight,
+        callback
+      );
+
+    });
+
+  });
+}
 
 
-  /*
-   * 第一輪兩兩對決
-   */
+/* =========================
+   兩組排名合併
+   ========================= */
 
-  const winners = [];
-  const losers = [];
+function mergeRanking(left, right, callback) {
 
-  let index = 0;
+  const resultList = [];
 
-  function nextMatch() {
+  let leftIndex = 0;
+  let rightIndex = 0;
 
-    if (index >= pool.length) {
 
-      /*
-       * 第一輪完成
-       *
-       * 勝者組繼續爭前面的名次
-       * 敗者組進入後面的名次
-       */
+  function compareNext() {
 
-      continueWinners(winners, losers);
+    if (leftIndex >= left.length) {
+
+      resultList.push(
+        ...right.slice(rightIndex)
+      );
+
+      callback(resultList);
 
       return;
     }
 
 
-    const a = pool[index];
+    if (rightIndex >= right.length) {
 
-    const b = pool[index + 1];
+      resultList.push(
+        ...left.slice(leftIndex)
+      );
 
-
-    /*
-     * 奇數最後一人輪空
-     */
-
-    if (!b) {
-
-      winners.push(a);
-
-      index += 1;
-
-      nextMatch();
+      callback(resultList);
 
       return;
     }
+
+
+    const a = left[leftIndex];
+    const b = right[rightIndex];
 
 
     app.innerHTML = `
@@ -468,8 +464,11 @@ function rankingTournament(pool, ranking) {
         </p>
 
         <div class="grid">
+
           ${card(a)}
+
           ${card(b)}
+
         </div>
 
       </section>
@@ -480,140 +479,27 @@ function rankingTournament(pool, ranking) {
 
       if (id === a.id) {
 
-        winners.push(a);
-        losers.push(b);
+        resultList.push(a);
+
+        leftIndex++;
+
+      } else if (id === b.id) {
+
+        resultList.push(b);
+
+        rightIndex++;
 
       } else {
 
-        winners.push(b);
-        losers.push(a);
+        return;
       }
 
-      index += 2;
-
-      nextMatch();
+      compareNext();
     };
   }
 
 
-  nextMatch();
-}
-
-
-/* =========================
-   勝者組繼續比
-   ========================= */
-
-function continueWinners(winners, losers) {
-
-  /*
-   * 如果勝者組已經不足以繼續
-   */
-  if (winners.length <= 1) {
-
-    const ranking = [
-      ...winners,
-      ...losers
-    ];
-
-    result(ranking.slice(0, 9));
-
-    return;
-  }
-
-
-  /*
-   * 勝者組再次兩兩配對
-   *
-   * 例如：
-   *
-   * A D F H I
-   *
-   * → A vs D
-   * → F vs H
-   * → I 輪空
-   */
-
-  const nextWinners = [];
-  const nextLosers = [];
-
-  let index = 0;
-
-
-  function nextMatch() {
-
-    if (index >= winners.length) {
-
-      /*
-       * 把勝者組繼續往上比
-       */
-      continueWinners(nextWinners, [
-        ...nextLosers,
-        ...losers
-      ]);
-
-      return;
-    }
-
-
-    const a = winners[index];
-
-    const b = winners[index + 1];
-
-
-    if (!b) {
-
-      nextWinners.push(a);
-
-      index += 1;
-
-      nextMatch();
-
-      return;
-    }
-
-
-    app.innerHTML = `
-      <section class="screen">
-
-        <h2 class="title">
-          ROUND 3｜最終選考
-        </h2>
-
-        <p class="sub" style="text-align:center">
-          どちらの顔が好き？
-        </p>
-
-        <div class="grid">
-          ${card(a)}
-          ${card(b)}
-        </div>
-
-      </section>
-    `;
-
-
-    window.pick = function(id) {
-
-      if (id === a.id) {
-
-        nextWinners.push(a);
-        nextLosers.push(b);
-
-      } else {
-
-        nextWinners.push(b);
-        nextLosers.push(a);
-      }
-
-      index += 2;
-
-      nextMatch();
-    };
-  }
-
-
-  nextMatch();
+  compareNext();
 }
 
 
