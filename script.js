@@ -76,7 +76,7 @@ function home() {
   app.innerHTML = `
     <section class="screen start">
 
-      <h1>30代俳優、アイドル好き顔9選</h1>
+      <h1>20代、30代俳優好き顔9選</h1>
 
       <div class="sub">
         男性
@@ -530,7 +530,7 @@ function result(list) {
     <section class="screen">
 
       <h2 class="title">
-        30代俳優さん好き顔9選
+        20代、30代俳優好き顔9選
       </h2>
 
       <p class="sub" style="text-align:center">
