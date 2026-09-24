@@ -20,6 +20,7 @@ const people = [
   { id: 18, name: "鈴木伸之", img: "鈴木伸之.jpg" },
   { id: 19, name: "間宮祥太朗", img: "間宮祥太朗.jpg" },
   { id: 20, name: "高杉真宙", img: "高杉真宙.webp" }
+   { id: 21, name:"柳楽優弥", img: "柳楽優弥.webp" }
 ];
 
 const app = document.querySelector("#app");
