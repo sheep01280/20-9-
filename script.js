@@ -26,6 +26,7 @@ const app = document.querySelector("#app");
 
 let groups = [];
 let survivors = [];
+let finalists = [];
 let picked = [];
 
 
@@ -33,54 +34,39 @@ let picked = [];
    共通
    ========================= */
 
-const shuffle = array => {
+function shuffle(array) {
   return [...array].sort(() => Math.random() - 0.5);
-};
-
-
-/* =========================
-   候選人卡片
-   ========================= */
-
-const card = person => `
-  <button
-    class="card"
-    id="p${person.id}"
-    onclick="pick(${person.id})"
-  >
-    <span class="check">✓</span>
-    <img src="${person.img}">
-    <div class="name">${person.name}</div>
-  </button>
-`;
-
-
-/* =========================
-   開始
-   ========================= */
-
-function start() {
-  groups = [];
-  survivors = [];
-  picked = [];
-
-  const shuffled = shuffle(people);
-
-  while (shuffled.length > 0) {
-    groups.push(shuffled.splice(0, 4));
-  }
-
-  pre(0);
 }
 
 
 /* =========================
-   首頁
+   卡片
+   ========================= */
+
+function card(person) {
+  return `
+    <button
+      class="card"
+      id="p${person.id}"
+      onclick="pick(${person.id})"
+    >
+      <span class="check">✓</span>
+      <img src="${person.img}">
+      <div class="name">${person.name}</div>
+    </button>
+  `;
+}
+
+
+/* =========================
+   HOME
    ========================= */
 
 function home() {
+
   app.innerHTML = `
     <section class="screen start">
+
       <h1>30代俳優さん好き顔9選</h1>
 
       <div class="sub">
@@ -94,8 +80,30 @@ function home() {
       <p class="note">
         21人の俳優さんから選べます
       </p>
+
     </section>
   `;
+}
+
+
+/* =========================
+   START
+   ========================= */
+
+function start() {
+
+  groups = [];
+  survivors = [];
+  finalists = [];
+  picked = [];
+
+  const pool = shuffle(people);
+
+  for (let i = 0; i < pool.length; i += 4) {
+    groups.push(pool.slice(i, i + 4));
+  }
+
+  pre(0);
 }
 
 
@@ -105,9 +113,17 @@ function home() {
 
 function pre(round) {
 
-  // 第一關全部結束
   if (round >= groups.length) {
-    secondRound(0, shuffle(survivors));
+
+    if (survivors.length < 2) {
+      result(survivors);
+      return;
+    }
+
+    finalists = [];
+
+    secondRound(0);
+
     return;
   }
 
@@ -131,12 +147,14 @@ function pre(round) {
       </div>
 
       <div style="text-align:center">
+
         <button
           class="btn"
           onclick="nextPre(${round})"
         >
           次へ
         </button>
+
       </div>
 
     </section>
@@ -148,23 +166,23 @@ function pre(round) {
    ROUND 1 選擇
    ========================= */
 
-window.pick = function (id) {
+window.pick = function(id) {
 
-  const element = document.querySelector("#p" + id);
+  const el = document.querySelector("#p" + id);
 
-  if (!element) return;
+  if (!el) return;
 
   if (picked.includes(id)) {
 
-    picked = picked.filter(value => value !== id);
+    picked = picked.filter(x => x !== id);
 
-    element.classList.remove("selected");
+    el.classList.remove("selected");
 
   } else if (picked.length < 3) {
 
     picked.push(id);
 
-    element.classList.add("selected");
+    el.classList.add("selected");
   }
 };
 
@@ -177,11 +195,11 @@ function nextPre(round) {
 
   const group = groups[round];
 
-  const selectedPeople = group.filter(person =>
+  const selected = group.filter(person =>
     picked.includes(person.id)
   );
 
-  survivors.push(...selectedPeople);
+  survivors.push(...selected);
 
   pre(round + 1);
 }
@@ -191,25 +209,28 @@ function nextPre(round) {
    ROUND 2｜本選
    ========================= */
 
-function secondRound(index, pool) {
+function secondRound(index) {
 
-  // 沒有人或只剩一人
-  if (pool.length < 2) {
-    finalRound(shuffle(pool));
+  if (index >= survivors.length) {
+
+    if (finalists.length < 2) {
+      result(finalists);
+      return;
+    }
+
+    startFinalRound(finalists);
+
     return;
   }
 
-  // 已經跑完所有候選
-  if (index >= pool.length) {
-    finalRound(shuffle(pool));
-    return;
-  }
+  const group = survivors.slice(index, index + 4);
 
-  const group = pool.slice(index, index + 4);
-
-  // 如果最後只剩一人
   if (group.length < 2) {
-    finalRound(shuffle(pool));
+
+    finalists.push(...group);
+
+    startFinalRound(finalists);
+
     return;
   }
 
@@ -247,180 +268,199 @@ function secondRound(index, pool) {
   `;
 
 
-  /*
-   * ROUND 2 專用選擇
-   */
+  window.pick = function(id) {
 
-  window.pick = function (id) {
+    const el = document.querySelector("#p" + id);
 
-    const element = document.querySelector("#p" + id);
-
-    if (!element) return;
+    if (!el) return;
 
 
-    // 第一次選擇
     if (firstId === null) {
 
       firstId = id;
 
-      element.classList.add("selected");
+      el.classList.add("selected");
 
-    }
-
-    // 點擊同一個第一名 → 取消
-    else if (id === firstId) {
+    } else if (id === firstId) {
 
       firstId = null;
 
-      element.classList.remove("selected");
+      el.classList.remove("selected");
 
-    }
-
-    // 第二次選擇
-    else if (secondId === null) {
+    } else if (secondId === null) {
 
       secondId = id;
 
-      element.classList.add("selected");
+      el.classList.add("selected");
 
-    }
-
-    // 點擊同一個第二名 → 取消
-    else if (id === secondId) {
+    } else if (id === secondId) {
 
       secondId = null;
 
-      element.classList.remove("selected");
+      el.classList.remove("selected");
 
-    }
+    } else {
 
-    // 已經有兩人，再選其他人
-    else {
-
-      const oldSecond =
+      const old =
         document.querySelector("#p" + secondId);
 
-      if (oldSecond) {
-        oldSecond.classList.remove("selected");
+      if (old) {
+        old.classList.remove("selected");
       }
 
       secondId = id;
 
-      element.classList.add("selected");
+      el.classList.add("selected");
     }
 
 
-    const confirmButton =
+    const button =
       document.querySelector("#ok");
 
 
-    // 兩個人都選好
     if (firstId !== null && secondId !== null) {
 
-      confirmButton.disabled = false;
+      button.disabled = false;
 
-      confirmButton.onclick = function () {
+      button.onclick = function() {
 
-        const firstPerson =
-          group.find(person => person.id === firstId);
+        const first =
+          group.find(p => p.id === firstId);
 
-        const secondPerson =
-          group.find(person => person.id === secondId);
+        const second =
+          group.find(p => p.id === secondId);
 
-        const remaining =
-          pool.slice(index + 4);
+        finalists.push(first);
+        finalists.push(second);
 
-        /*
-         * 保留第1、第2名，
-         * 其他候選人繼續進下一輪
-         */
-
-        const nextPool = shuffle([
-          firstPerson,
-          secondPerson,
-          ...remaining
-        ]);
-
-        secondRound(0, nextPool);
+        secondRound(index + 4);
       };
 
     } else {
 
-      confirmButton.disabled = true;
-      confirmButton.onclick = null;
+      button.disabled = true;
+      button.onclick = null;
     }
   };
 }
 
 
+/* =====================================================
+   ROUND 3｜最終選考
+   ===================================================== */
+
+/*
+ * 這裡就是你說的：
+ *
+ * A vs B → A
+ * C vs D → D
+ * E vs F → F
+ * G vs H → H
+ * I vs J → I
+ *
+ * 接著：
+ *
+ * A vs D
+ * F vs H
+ * ...
+ *
+ * 勝者繼續在上位組比。
+ *
+ * 敗者也會進入自己的排名組。
+ *
+ * 最後只取 TOP 9。
+ */
+
+function startFinalRound(pool) {
+
+  const shuffled = shuffle(pool);
+
+  rankingTournament(shuffled, []);
+}
+
+
 /* =========================
-   FINAL｜一対一
+   排名賽
    ========================= */
 
-function finalRound(pool) {
+function rankingTournament(pool, ranking) {
 
-  if (pool.length === 0) {
-    result([]);
+  /*
+   * 已經排出9人
+   */
+  if (ranking.length >= 9) {
+
+    result(ranking.slice(0, 9));
+
     return;
   }
 
-  if (pool.length === 1) {
-    result(pool);
+
+  /*
+   * 剩下的人少於等於9人
+   */
+  if (pool.length <= 9 - ranking.length) {
+
+    ranking.push(...pool);
+
+    result(ranking.slice(0, 9));
+
     return;
   }
+
+
+  /*
+   * 第一輪兩兩對決
+   */
 
   const winners = [];
+  const losers = [];
 
   let index = 0;
 
+  function nextMatch() {
 
-  function duel() {
-
-    // 已經選出 9 人
-    if (winners.length >= 9) {
-
-      result(winners.slice(0, 9));
-
-      return;
-    }
-
-
-    // 沒有更多候選
     if (index >= pool.length) {
 
-      result(winners.slice(0, 9));
+      /*
+       * 第一輪完成
+       *
+       * 勝者組繼續爭前面的名次
+       * 敗者組進入後面的名次
+       */
+
+      continueWinners(winners, losers);
 
       return;
     }
 
 
-    const current = pool[index];
+    const a = pool[index];
 
-    const next = pool[index + 1];
+    const b = pool[index + 1];
 
 
-    // 只剩一人
-    if (!next) {
+    /*
+     * 奇數最後一人輪空
+     */
 
-      winners.push(current);
+    if (!b) {
 
-      result(winners.slice(0, 9));
+      winners.push(a);
+
+      index += 1;
+
+      nextMatch();
 
       return;
     }
-
-
-    const candidates = shuffle([
-      current,
-      next
-    ]);
 
 
     app.innerHTML = `
       <section class="screen">
 
         <h2 class="title">
-          FINAL｜一対一
+          ROUND 3｜最終選考
         </h2>
 
         <p class="sub" style="text-align:center">
@@ -428,30 +468,152 @@ function finalRound(pool) {
         </p>
 
         <div class="grid">
-          ${candidates.map(card).join("")}
+          ${card(a)}
+          ${card(b)}
         </div>
 
       </section>
     `;
 
 
-    window.pick = function (id) {
+    window.pick = function(id) {
 
-      const winner =
-        candidates.find(person => person.id === id);
+      if (id === a.id) {
 
-      if (!winner) return;
+        winners.push(a);
+        losers.push(b);
 
-      winners.push(winner);
+      } else {
+
+        winners.push(b);
+        losers.push(a);
+      }
 
       index += 2;
 
-      duel();
+      nextMatch();
     };
   }
 
 
-  duel();
+  nextMatch();
+}
+
+
+/* =========================
+   勝者組繼續比
+   ========================= */
+
+function continueWinners(winners, losers) {
+
+  /*
+   * 如果勝者組已經不足以繼續
+   */
+  if (winners.length <= 1) {
+
+    const ranking = [
+      ...winners,
+      ...losers
+    ];
+
+    result(ranking.slice(0, 9));
+
+    return;
+  }
+
+
+  /*
+   * 勝者組再次兩兩配對
+   *
+   * 例如：
+   *
+   * A D F H I
+   *
+   * → A vs D
+   * → F vs H
+   * → I 輪空
+   */
+
+  const nextWinners = [];
+  const nextLosers = [];
+
+  let index = 0;
+
+
+  function nextMatch() {
+
+    if (index >= winners.length) {
+
+      /*
+       * 把勝者組繼續往上比
+       */
+      continueWinners(nextWinners, [
+        ...nextLosers,
+        ...losers
+      ]);
+
+      return;
+    }
+
+
+    const a = winners[index];
+
+    const b = winners[index + 1];
+
+
+    if (!b) {
+
+      nextWinners.push(a);
+
+      index += 1;
+
+      nextMatch();
+
+      return;
+    }
+
+
+    app.innerHTML = `
+      <section class="screen">
+
+        <h2 class="title">
+          ROUND 3｜最終選考
+        </h2>
+
+        <p class="sub" style="text-align:center">
+          どちらの顔が好き？
+        </p>
+
+        <div class="grid">
+          ${card(a)}
+          ${card(b)}
+        </div>
+
+      </section>
+    `;
+
+
+    window.pick = function(id) {
+
+      if (id === a.id) {
+
+        nextWinners.push(a);
+        nextLosers.push(b);
+
+      } else {
+
+        nextWinners.push(b);
+        nextLosers.push(a);
+      }
+
+      index += 2;
+
+      nextMatch();
+    };
+  }
+
+
+  nextMatch();
 }
 
 
