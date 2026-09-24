@@ -29,6 +29,16 @@ const people = [
   { id: 27, name: "工藤阿須加", img: "工藤阿須加.jpg" },
   { id: 28, name: "小関裕太", img: "小関裕太.jpg" },
   { id: 29, name: "福士蒼汰", img: "福士蒼汰.jpg" },
+  { id: 30, name: "宮沢氷魚", img: "宮沢氷魚.jpg" },
+  { id: 31, name: "中村蒼", img: "中村蒼.jpg" },
+  { id: 32, name: "本郷奏多", img: "本郷奏多.jpg" },
+  { id: 33, name: "山﨑賢人", img: "山﨑賢人.jpg" },
+  { id: 34, name: "岡田将生", img: "岡田将生.jpg" },
+  { id: 35, name: "志尊淳", img: "志尊淳.jpg" },
+  { id: 36, name: "松下洸平", img: "松下洸平.jpg" },
+  { id: 37, name: "成田凌", img: "成田凌.jpg" },
+  { id: 38, name: "佐藤健", img: "佐藤健.jpg" },
+  { id: 39, name: "溝端淳平", img: "溝端淳平.jpg" },
 ];
 
 const app = document.querySelector("#app");
