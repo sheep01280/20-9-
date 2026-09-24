@@ -24,6 +24,11 @@ const people = [
   { id: 22, name: "浅香航大", img: "浅香航大.jpg" },
   { id: 23, name: "白洲迅", img: "白洲迅.png" },
   { id: 24, name: "林遣都", img: "林遣都.jpg" },
+  { id: 25, name: "野村周平", img: "野村周平.jpg" },
+  { id: 26, name: "塩野瑛久", img: "塩野瑛久.png" },
+  { id: 27, name: "工藤阿須加", img: "工藤阿須加.jpg" },
+  { id: 28, name: "小関裕太", img: "小関裕太.jpg" },
+  { id: 29, name: "福士蒼汰", img: "福士蒼汰.png" },
 ];
 
 const app = document.querySelector("#app");
