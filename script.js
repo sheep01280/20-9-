@@ -76,10 +76,10 @@ function home() {
   app.innerHTML = `
     <section class="screen start">
 
-      <h1>30代俳優さん好き顔9選</h1>
+      <h1>30代俳優、アイドル好き顔9選</h1>
 
       <div class="sub">
-        日本俳優
+        男性
       </div>
 
       <button class="btn" onclick="start()">
@@ -87,7 +87,6 @@ function home() {
       </button>
 
       <p class="note">
-        21人の俳優さんから選べます
       </p>
 
     </section>
