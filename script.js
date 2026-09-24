@@ -1,4 +1,26 @@
-const people=Array.from({length:10},(_,i)=>({id:i,name:`候選者 ${String(i+1).padStart(2,"0")}`,img:`images/candidate${String(i+1).padStart(2,"0")}.jpg`}));
+const people=[
+{id:0,name:"三浦翔平",img:"三浦翔平.jpg"},
+{id:1,name:"中村倫也",img:"中村倫也.jpg"},
+{id:2,name:"千葉雄大",img:"千葉雄大.jpg"},
+{id:3,name:"吉沢亮",img:"吉沢亮.jpg"},
+{id:4,name:"坂口健太郎",img:"坂口健太郎.jpg"},
+{id:5,name:"山田裕貴",img:"山田裕貴.jpeg"},
+{id:6,name:"杉野遥亮",img:"杉野遥亮.jpg"},
+{id:7,name:"松坂桃李",img:"松坂桃李.jpg"},
+{id:8,name:"横浜流星",img:"横浜流星.webp"},
+{id:9,name:"瀬戸康史",img:"瀬戸康史.jpg"},
+{id:10,name:"犬飼貴丈",img:"犬飼貴丈.jpg"},
+{id:11,name:"町田啓太",img:"町田啓太.webp"},
+{id:12,name:"磯村勇斗",img:"磯村勇斗.jpg"},
+{id:13,name:"神木隆之介",img:"神木隆之介.jpg"},
+{id:14,name:"竜星涼",img:"竜星涼.jpg"},
+{id:15,name:"竹内涼真",img:"竹内涼真.jpg"},
+{id:16,name:"菅田将暉",img:"菅田将暉.jpg"},
+{id:17,name:"赤楚衛二",img:"赤楚衛二.jpg"},
+{id:18,name:"鈴木伸之",img:"鈴木伸之.jpg"},
+{id:19,name:"間宮祥太朗",img:"間宮祥太朗.jpg"},
+{id:20,name:"高杉真宙",img:"高杉真宙.webp"}
+];
 const app=document.querySelector("#app");let groups=[],survivors=[],picked=[];
 const shuffle=a=>[...a].sort(()=>Math.random()-.5);
 const card=p=>`<button class="card" id="p${p.id}" onclick="pick(${p.id})"><span class="check">✓</span><img src="${p.img}"><div class="name">${p.name}</div></button>`;
