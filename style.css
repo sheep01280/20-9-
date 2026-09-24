@@ -1,7 +1,7 @@
 *{box-sizing:border-box}
 body{margin:0;background:#f7f5f3;color:#222;font-family:Arial,"Noto Sans JP",sans-serif}
 button{font:inherit}
-.screen{width:min(100%,720px);margin:auto;padding:28px 16px 40px}
+.screen{width:min(100%,600px);margin:auto;padding:28px 16px 40px}
 .start{text-align:center;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center}
 h1{letter-spacing:.08em}
 .sub,.note{color:#777;font-size:13px}
