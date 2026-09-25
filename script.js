@@ -247,31 +247,43 @@ function nextPre(round) {
 /* =========================
    ROUND 2｜本選
    ========================= */
-
 function secondRound(index) {
+
   if (index >= survivors.length) {
-    if (finalists.length < 2) {
+
+    if (finalists.length < 1) {
       result(finalists);
       return;
     }
+
     startFinalRound(finalists);
+
     return;
   }
+
   const group = survivors.slice(index, index + 4);
+
   let firstId = null;
   let secondId = null;
+
   app.innerHTML = `
     <section class="screen">
+
       <h2 class="title">
         ROUND 2｜本選
       </h2>
+
       <p class="sub" style="text-align:center">
-        第1位と第2位を順番に選んでください
+        第1位を選んでください<br>
+        第2位も選択できます
       </p>
+
       <div class="grid">
         ${group.map(card).join("")}
       </div>
+
       <div style="text-align:center">
+
         <button
           class="btn"
           id="ok"
@@ -279,98 +291,184 @@ function secondRound(index) {
         >
           決定
         </button>
+
       </div>
+
     </section>
   `;
+
   window.pick = function(id) {
+
     const el = document.querySelector("#p" + id);
+
     if (!el) return;
+
+
     /* =========================
-       已經選過的人
+       已經選過第1位
        ========================= */
+
     if (id === firstId) {
+
       firstId = null;
+
       el.classList.remove("selected");
+
       const mark = el.querySelector(".check");
+
       if (mark) {
         mark.textContent = "✓";
       }
-    } else if (id === secondId) {
-      secondId = null;
-      el.classList.remove("selected");
-      const mark = el.querySelector(".check");
-      if (mark) {
-        mark.textContent = "✓";
-      }
+
     }
+
+
+    /* =========================
+       已經選過第2位
+       ========================= */
+
+    else if (id === secondId) {
+
+      secondId = null;
+
+      el.classList.remove("selected");
+
+      const mark = el.querySelector(".check");
+
+      if (mark) {
+        mark.textContent = "✓";
+      }
+
+    }
+
+
     /* =========================
        選第1位
        ========================= */
+
     else if (firstId === null) {
+
       firstId = id;
+
       el.classList.add("selected");
+
       const mark = el.querySelector(".check");
+
       if (mark) {
         mark.textContent = "①";
       }
+
     }
+
+
     /* =========================
        選第2位
        ========================= */
+
     else if (secondId === null) {
+
       secondId = id;
+
       el.classList.add("selected");
+
       const mark = el.querySelector(".check");
+
       if (mark) {
         mark.textContent = "②";
       }
+
     }
+
+
     /* =========================
-       已經有兩個人
-       再點第三個
-       → 取消第2位
+       已經有①②
+       再選其他人
+       → 更換第2位
        ========================= */
+
     else {
+
       const oldSecond =
         document.querySelector("#p" + secondId);
+
       if (oldSecond) {
+
         oldSecond.classList.remove("selected");
+
         const oldMark =
           oldSecond.querySelector(".check");
+
         if (oldMark) {
           oldMark.textContent = "✓";
         }
       }
+
       secondId = id;
+
       el.classList.add("selected");
+
       const mark = el.querySelector(".check");
+
       if (mark) {
         mark.textContent = "②";
       }
     }
+
+
     /* =========================
        決定按鈕
        ========================= */
+
     const button =
       document.querySelector("#ok");
-    if (firstId !== null && secondId !== null) {
+
+
+    /*
+     * 只要有選①
+     * 就可以決定
+     */
+
+    if (firstId !== null) {
+
       button.disabled = false;
+
       button.onclick = function() {
+
         const first =
           group.find(p => p.id === firstId);
-        const second =
-          group.find(p => p.id === secondId);
+
         finalists.push(first);
-        finalists.push(second);
+
+
+        /*
+         * 如果有選②
+         * 一起加入
+         */
+
+        if (secondId !== null) {
+
+          const second =
+            group.find(p => p.id === secondId);
+
+          finalists.push(second);
+        }
+
+
+        /*
+         * 不管這組有幾個人
+         * 都進下一組
+         */
+
         secondRound(index + group.length);
       };
+
     } else {
+
       button.disabled = true;
       button.onclick = null;
     }
   };
 }
-
 /* =====================================================
    ROUND 3｜最終選考
    ===================================================== */
